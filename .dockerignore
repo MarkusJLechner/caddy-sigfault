@@ -1,0 +1,24 @@
+# git
+.git
+.gitignore
+.github
+.idea
+.devbots
+.husky
+.phpstorm.meta.php
+.storybook
+cache/**/*
+storage/clockwork/**/*
+
+# docker
+Dockerfile
+.dockerignore
+docker/mysql/data
+
+# project
+cache/devicedetection/**/*
+vendor
+node_modules
+
+# crm src folder (which is in gitignore)
+/frontend

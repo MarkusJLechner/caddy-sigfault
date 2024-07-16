@@ -1,0 +1,71 @@
+services:
+    webserver:
+        build:
+            context: .
+            target: development
+            args:
+              WKHTML_DEP_URI: '${WKHTML_DEP_URI:-https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6.1-2/wkhtmltox_0.12.6.1-2.bullseye_amd64.deb}'
+              LIBSSL_DEP_URI: '${LIBSSL_DEP_URI:-http://archive.ubuntu.com/ubuntu/pool/main/o/openssl/libssl1.1_1.1.0g-2ubuntu4_amd64.deb}'
+              USER_ID: '${USER_ID:-1000}'
+              GROUP_ID: '${GROUP_ID:-1000}'
+        volumes:
+            - './:/var/www/web'
+            - './docker/webserver/entrypoint-development.sh:/var/www/entrypoint.sh'
+            - './docker/webserver/development.caddy/:/etc/caddy/Caddyfile'
+            - caddy_data:/data
+            - caddy_config:/config
+        environment:
+            AURORA_DATABASE_HOST: root
+            AURORA_DATABASE_USER: root
+            AURORA_DATABASE_PASSWORD: root
+            AURORA_DATABASE_NAME: database
+            IGNITION_LOCAL_SITES_PATH: '${PWD}'
+            LARAVEL_SAIL: "1"
+            XDEBUG_MODE: ${XDEBUG_MODE:-off}
+        ports:
+            - '10000:10000'
+            - '10005:10005'
+        extra_hosts:
+            - 'host.docker.internal:host-gateway'
+        tty: true
+    redis:
+        image: 'redis:latest'
+        ports:
+            - '6379:6379'
+        volumes:
+            - './docker/redis/data:/data'
+    mysql:
+        image: 'mysql:8.0'
+        command: >
+            --sql_mode=''
+            --default-time-zone='UTC'
+            --innodb_fast_shutdown=1
+            --default-authentication-plugin=caching_sha2_password
+        ports:
+            - '10002:3306'
+        volumes:
+            - './docker/mysql/data:/var/lib/mysql'
+        environment:
+            MYSQL_ROOT_PASSWORD: root
+            MYSQL_DATABASE: database
+            MYSQL_USER: root
+            MYSQL_PASSWORD: root
+            TZ: Europe/Berlin
+    phpmyadmin:
+        image: 'phpmyadmin/phpmyadmin:latest'
+        environment:
+            PMA_HOST: root
+            PMA_USER: root
+            PMA_PASSWORD: root
+            PMA_PORT: 3306
+        ports:
+            - '10003:80'
+        volumes:
+            - /sessions
+networks:
+    default:
+        driver: bridge
+
+volumes:
+    caddy_data:
+    caddy_config:

@@ -1,0 +1,19 @@
+{
+	log {
+		output discard
+	}
+
+	http_port 10000
+	https_port 10005
+
+	auto_https off
+
+	frankenphp
+	order php_server before file_server
+}
+
+localhost:10000 {
+	root * public/
+
+	php_server
+}
