@@ -105,12 +105,6 @@ FROM php-base AS development
 ## Reload sysctl settings
 #RUN apt-get update && apt-get install -y gdb
 
-# Install and configure xdebug. Do not copy to conf.d, as it should be enabled/disabled by the user using entrypoint and env XDEBUG_ENABLED
-RUN pecl install xdebug-3.3.0alpha3 \
-    && docker-php-ext-enable xdebug
-COPY --chown=${USER_ID}:${GROUP_ID} ./docker/webserver/xdebug.ini /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
-RUN chown -R ${USER_ID}:${GROUP_ID} /usr/local/etc/php/conf.d/
-
 # wget necessary for entrypoint mysql wait
 # gettext necessary for sail npm i18n commands
 RUN apt-get update \
